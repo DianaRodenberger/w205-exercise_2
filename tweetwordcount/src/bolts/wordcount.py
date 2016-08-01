@@ -22,18 +22,19 @@ class WordCounter(Bolt):
         # Use psycopg to interact with Postgres
         # Database name: Tcount 
         # Table name: Tweetwordcount 
-        # you need to create both the database and the table in advance.
         
-
+        
         # Increment the local count
         self.counts[word] += 1
         conn = psycopg2.connect(database="tcount", user="postgres", password="pass", host="localhost", port="5432")
         cur = conn.cursor()
         duplicate=0
         try:
+            #insert the word 
             cur.execute("INSERT INTO Tweetwordcount (word,count) \
                     VALUES (%s, %s)", (word, self.counts[word]))
         except:
+            #word already exists in db. update count
             duplicate=1
             conn.rollback()
             cur.execute("UPDATE Tweetwordcount SET count=%s WHERE word=%s", (self.counts[word], word))
